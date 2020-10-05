@@ -12,6 +12,9 @@ class Riddle_Game(object):
         self.root.resizable(0,0)
         self.button_font = tkFont.Font(family="Arial",size=20,weight="bold")
         self.heading_font = tkFont.Font(family="Courier", size=50, weight="bold")
+        self.background()
+        self.main_frame = Frame(self.root, height=750, width=1150, padx=25, pady=25)
+        self.main_frame.place(x=25,y=25)
         self.starter()
         self.root.mainloop()
 
@@ -20,21 +23,21 @@ class Riddle_Game(object):
 
 
     def first_frame(self):
-        self.background()
-        self.frame1 = self.alot_frame(height=300,width=1000,side=TOP)
-        self.frame2 = self.alot_frame(height=100,width=400,side=LEFT,padx=10,pady=10)
-        self.frame3 = self.alot_frame(height=100,width=400,side=RIGHT,padx=10,pady=10)
-        self.game_heading(self.frame1)
-        self.buttons(self.frame2,name="play_with_comp")
-        self.buttons(self.frame3,name="play_with_friend")
+        self.heading_frame = Frame(self.main_frame, height= 100, width=100)
+        self.heading_frame.place(x=300,y=100)
+        #self.frame2 = self.alot_frame(height=100,width=400,side=LEFT,padx=10,pady=10)
+        #self.frame3 = self.alot_frame(height=100,width=400,side=RIGHT,padx=10,pady=10)
+        self.game_heading(self.heading_frame)
+        #self.buttons(self.frame2,name="play_with_comp")
+        #self.buttons(self.frame3,name="play_with_friend")
 
     def game_heading(self,frame):
         self.heading1 = Label(frame,font=self.heading_font,fg="Black",justify=CENTER,text="THE",height=2,width=7)
-        self.heading1.pack(side=TOP)
+        self.heading1.place(x=350,y=125)
         self.heading2 = Label(frame, font=self.heading_font, fg="Black", justify=CENTER, text="RIDDLE", height=2, width=7)
-        self.heading2.pack(side=TOP)
+        self.heading2.place(x=400,y=125)
         self.heading3 = Label(frame, font=self.heading_font, fg="Black", justify=CENTER, text="GAME", height=2, width=7)
-        self.heading3.pack(side=TOP)
+        self.heading3.place(x=450,y=125)
 
     def background(self):
         self.background_image = ImageTk.PhotoImage(file="images/riddle.jpg")
@@ -55,13 +58,8 @@ class Riddle_Game(object):
             self.play_friend_button.pack(side=RIGHT)
         elif name=="Continue":
             self.continue_button = Button(frame,text="Continue",activebackground="Yellow", bd=3,bg="black", fg="white",
-                                          command=self.comp_ques(self.name,self.age),font=self.button_font,justify=CENTER, height=2, width=20)
+                                          command=self.comp_ques,font=self.button_font,justify=CENTER, height=2, width=20)
             self.continue_button.pack(side=BOTTOM)
-
-    def alot_frame(self,height,width,side,padx=None,pady=None):
-        self.frame = Frame(self.root,height=height,width=width,bg="White",padx=padx,pady=pady)
-        self.frame.pack(side=side)
-        return self.frame
 
     def play_comp(self):
         self.frame2.destroy()
@@ -76,7 +74,6 @@ class Riddle_Game(object):
         self.frame3 = self.alot_frame(height=100, width=600, side=RIGHT)
         self.input = Entry(self.frame3,width=50)
         self.input.pack(side=RIGHT,ipady=6)
-        self.name = self.input.get()
         self.frame4 = Frame(height=800, width=400)
         self.frame4.place(x=0,y=550)
         self.label_name2 = Label(self.frame4, bg="White", font=self.button_font, text="Age", height=1, width=9,fg="Black")
@@ -85,7 +82,7 @@ class Riddle_Game(object):
         self.frame5.place(x=795,y=550)
         self.input2 = Entry(self.frame5, width=50)
         self.input2.pack(side=RIGHT, ipady=6)
-        self.age = self.input2.get()
+
         self.button_frame = Frame(height=100,width=500)
         self.button_frame.pack(side=BOTTOM)
         self.buttons(self.button_frame,name="Continue")
@@ -93,9 +90,15 @@ class Riddle_Game(object):
     def play_friend(self):
         pass
 
-    def comp_ques(self,name,age):
-        if name and age:
+    def comp_ques(self):
+        self.name = self.input.get()
+        self.age = self.input2.get()
+        if self.name and self.age:
             self.frame.destroy()
+            self.frame2.destroy()
+            self.frame3.destroy()
+            self.frame4.destroy()
+            self.frame5.destroy()
 
 if __name__ == '__main__':
     Riddle_Game()
