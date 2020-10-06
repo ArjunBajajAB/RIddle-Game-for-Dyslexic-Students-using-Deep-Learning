@@ -81,11 +81,40 @@ class Riddle_Game(object):
         self.age_frame.place(x=0, y=200)
         self.age_label = Label(self.age_frame,bg="White", font=self.button_font, text="Age", height=1, width=9,fg="Black")
         self.age_label.pack(side=BOTTOM,expand=True,padx=10,pady=10)
+        self.name_entry_frame = Frame(self.content_frame,height=100,width=100)
+        self.name_entry_frame.place(x=300,y=0)
+        self.name_entry = Entry(self.name_entry_frame,width=70)
+        self.name_entry.pack(side=RIGHT,ipady=10,fill=BOTH,expand=True)
+        self.age_entry_frame = Frame(self.content_frame, height=100, width=100)
+        self.age_entry_frame.place(x=300, y=200)
+        self.age_entry = Entry(self.age_entry_frame, width=70)
+        self.age_entry.pack(side=RIGHT, ipady=10, fill=BOTH, expand=True)
+        self.Continue_button_frame = Frame(self.content_frame, height=100, width=100)
+        self.Continue_button_frame.place(x=350,y=300)
+        self.continue_button = Button(self.Continue_button_frame,text="Continue",activebackground="Yellow", bd=3,bg="black", fg="white",
+                                          command=self.continue_frame1,font=self.button_font,justify=CENTER, height=2, width=20)
+        self.continue_button.pack(side=TOP)
+
 
     def play_friend(self):
         pass
     def about(self):
         pass
+
+    def continue_frame1(self):
+        self.age=self.age_entry.get()
+        self.name=self.name_entry.get()
+        self.name=self.name.replace(" ", "")
+        if self.age.isdigit() and self.name.isalpha():
+            self.main_frame.destroy()
+        else:
+            self.name_entry.delete(0,len(self.name)+2)
+            self.age_entry.delete(0, len(self.age))
+            self.alert_frame= Frame(self.content_frame,height=100,width=600)
+            self.alert_frame.place(x=300,y=250)
+            self.alert = "Please enter valid details"
+            self.alert_info =Label(self.alert_frame,bg="White", font=self.button_font, text=self.alert, height=1, width=25,fg="Black")
+            self.alert_info.pack(side=TOP)
 
 if __name__ == '__main__':
     Riddle_Game()
