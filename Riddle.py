@@ -12,6 +12,7 @@ class Riddle_Game(object):
         self.root.resizable(0,0)
         self.text_font = tkFont.Font(family="Courier New", size=15, weight="bold")
         self.heading_font = tkFont.Font(family="Verdana", size=40, weight="bold")
+        self.heading_font_small = tkFont.Font(family="Courier New", size=25, weight="bold")
         self.button_font = tkFont.Font(family="Playbill",size=15,weight="bold")
         self.BackgroundImage(self.root)
         self.first_page()
@@ -34,10 +35,10 @@ class Riddle_Game(object):
     def play_comp(self):
         self.main_frame.destroy()
         self.CreateMainFrame()
-        self.heading_frame= Frame(self.main_frame,height=100,width=1100,bg="#1a0d00")
-        self.heading_frame.place(x=20,y=20)
-        self.heading = Message(self.heading_frame,font=self.heading_font,bg="#1a0d00",fg="White",width=1100,justify=CENTER,text="Let us start with your details")
-        self.heading.place(x=10,y=10)
+        self.heading_frame= Frame(self.main_frame,height=100,width=950,bg="#1a0d00")
+        self.heading_frame.place(x=150,y=20)
+        self.heading = Message(self.heading_frame,font=self.heading_font,bg="#1a0d00",fg="White",width=950,justify=CENTER,text="Let us start with your details")
+        self.heading.place(x=0,y=10)
         self.content_frame = Frame(self.main_frame, height=150, width=700, bg="#1a0d00")
         self.content_frame.place(x=300, y=300)
         self.name_label = Label(self.content_frame, bg="#1a0d00", font=self.text_font, text="Name", height=1, width=9,fg="White")
@@ -60,9 +61,29 @@ class Riddle_Game(object):
     def PlayPageComp(self):
         self.age=self.age_entry.get()
         self.name=self.name_entry.get()
-        self.name=self.name.replace(" ", "")
-        if self.age.isdigit() and self.name.isalpha():
+        self.nameFormat=self.name.replace(" ", "")
+        if self.age.isdigit() and self.nameFormat.isalpha():
             self.main_frame.destroy()
+            self.CreateMainFrame()
+            self.heading_frame = Frame(self.main_frame, height=100, width=1100, bg="#1a0d00")
+            self.heading_frame.place(x=10, y=20)
+            self.text = "Hello " + str(self.name)+", I am Arjun Bot, let us begin the game"
+            self.heading = Message(self.heading_frame, font=self.heading_font_small, bg="#1a0d00", fg="White", width=1050,justify=CENTER, text=self.text)
+            self.heading.place(x=0, y=10)
+            self.content_frame = Frame(self.main_frame, height=300, width=800, bg="#1a0d00")
+            self.content_frame.place(x=200, y=300)
+            self.rule = "1. The game comprises of 5 rounds with each round having one point.\n2. In each round Arjun Bot will ask you a question and give you 2 minutes time to think and then you have to draw the answer in the given white region of the canvas and press 'Answer' button.\n3. If you answer correctly you will gain one point else Arjun will gain one point. \n4. After 5 rounds let's see who wins. \n Let's Go \n\n HINT: All answers comprise of only digits"
+            self.rules = Message(self.content_frame,font=self.text_font,bg="#1a0d00",fg="white",width=750,justify=LEFT,text=self.rule)
+            self.rules.place(x=0,y=0)
+            self.ButtonFrame = Frame(self.main_frame, height=50, width=600, bg="#1a0d00")
+            self.ButtonFrame.place(x=250, y=630)
+            self.continue_button = Button(self.ButtonFrame, text="Continue", activebackground="saddle brown", bd=3,bg="black", fg="white",
+                                          command=self.PlaySolo,font=self.button_font, justify=CENTER, height=1,width=15)
+            self.continue_button.place(x=0, y=0)
+            self.back_button = Button(self.ButtonFrame, text="Back", activebackground="saddle brown", bd=3, bg="black",fg="white",
+                                      command=self.play_comp, font=self.button_font, justify=CENTER, height=1,width=15)
+            self.back_button.place(x=285, y=0)
+
         else:
             self.name_entry.delete(0,len(self.name)+2)
             self.age_entry.delete(0, len(self.age))
@@ -70,14 +91,16 @@ class Riddle_Game(object):
             self.alert_info =Label(self.content_frame,bg="#1a0d00", font=self.text_font, text=self.alert, height=1, width=50,fg="White")
             self.alert_info.place(x=80,y=100)
 
+    def PlaySolo(self):
+        self.main_frame.destroy()
+
     def play_friend(self):
         self.main_frame.destroy()
         self.CreateMainFrame()
-        self.heading_frame = Frame(self.main_frame, height=100, width=1100, bg="#1a0d00")
-        self.heading_frame.place(x=20, y=20)
-        self.heading = Message(self.heading_frame, font=self.heading_font, bg="#1a0d00", fg="White", width=1100,
-                               justify=CENTER, text="Let us start with your details")
-        self.heading.place(x=10, y=10)
+        self.heading_frame = Frame(self.main_frame, height=100, width=950, bg="#1a0d00")
+        self.heading_frame.place(x=150, y=20)
+        self.heading = Message(self.heading_frame, font=self.heading_font, bg="#1a0d00", fg="White", width=950,justify=CENTER, text="Let us start with your details")
+        self.heading.place(x=0, y=10)
         self.content_frame = Frame(self.main_frame, height=250, width=800, bg="#1a0d00")
         self.content_frame.place(x=300, y=300)
         self.nameOne_label = Label(self.content_frame, bg="#1a0d00", font=self.text_font, text="Player 1 Name", height=1, width=15,justify=LEFT,fg="White")
