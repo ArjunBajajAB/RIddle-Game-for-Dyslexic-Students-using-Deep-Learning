@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import font as tkFont
 import pandas as pd
 import numpy as np
+import pyscreenshot as ImageGrab
 
 
 class Riddle_Game(object):
@@ -100,37 +101,58 @@ class Riddle_Game(object):
         self.AskedQues = []
         self.RiddleData = pd.read_csv("Riddle_Data.csv")
         pd.set_option('display.max_colwidth', None)
-        for i in range(5):
-            self.main_frame.destroy()
-            self.CreateMainFrame()
-            self.QuesFrame = Frame(self.main_frame,width=1100,height=200,bg="#1a0d00")
-            self.QuesFrame.place(x=20,y=10)
-            self.loop=1
-            while(self.loop==1):
-                self.QuesNo = np.random.randint(0,20,1)
-                if self.QuesNo not in self.AskedQues:
-                    self.AskedQues.append(self.QuesNo)
-                    self.loop=0
-                else:
-                    self.loop=1
-            self.QuesDisplay = Message(self.QuesFrame,bg="#1a0d00", fg="White", font=self.QuesFont, justify=CENTER,width=1050,
-                                       text=self.RiddleData["Questions"][self.QuesNo].to_string()[3:])
-            self.QuesDisplay.place(x=0,y=0)
-            self.DrawCanvas = Canvas(self.main_frame,bg="black",height=400,width=1000)
-            self.DrawCanvas.place(x=30,y=250)
-            self.CountBox=self.RiddleData["DigitsCount"][self.QuesNo]
-            for i in range(int(self.CountBox)):
-                self.DrawCanvas.create_rectangle(20+i*280+i*10,50,300+i*280+i*10,330,outline="white")
-            self.DrawCanvas.create_text(700,380,text="Try to draw each digit in separate box",fill="white",font=self.text_font)
+        self.CreateQues()
 
-            self.ButtonFrame = Frame(self.main_frame,width=500,height=50,bg="#1a0d00")
-            self.ButtonFrame.place(x=400,y=720)
-            self.ExitButton = Button(self.ButtonFrame,text="Quit Game",font=self.button_font,activebackground="saddle brown",
-                                     bd=3,bg="black",fg="white",justify=CENTER,command=self.first_page,height=1,width=15)
-            self.ExitButton.place(x=250,y=5)
-            self.ContinueButton = Button(self.ButtonFrame, text="Next", font=self.button_font,activebackground="saddle brown",
-                                         bd=3, bg="black", fg="white", justify=CENTER, height=1, width=15,command=self.predict)
-            self.ContinueButton.place(x=0, y=5)
+    def CreateQues(self):
+        self.main_frame.destroy()
+        self.CreateMainFrame()
+        self.QuesFrame = Frame(self.main_frame, width=1100, height=200, bg="#1a0d00")
+        self.QuesFrame.place(x=20, y=10)
+        self.loop = 1
+        while (self.loop == 1):
+            self.QuesNo = np.random.randint(0, 20, 1)
+            if self.QuesNo not in self.AskedQues:
+                self.AskedQues.append(self.QuesNo)
+                self.loop = 0
+            else:
+                self.loop = 1
+        self.QuesDisplay = Message(self.QuesFrame, bg="#1a0d00", fg="White", font=self.QuesFont, justify=CENTER, width=1050,
+                                   text=self.RiddleData["Questions"][self.QuesNo].to_string()[3:])
+        self.QuesDisplay.place(x=0, y=0)
+        self.DrawCanvas = Canvas(self.main_frame, bg="black", height=400, width=1000)
+        self.DrawCanvas.place(x=30, y=250)
+        self.CountBox = self.RiddleData["DigitsCount"][self.QuesNo]
+        for i in range(int(self.CountBox)):
+            self.DrawCanvas.create_rectangle(20 + i * 280 + i * 10, 50, 300 + i * 280 + i * 10, 330, outline="white")
+        self.DrawCanvas.create_text(700, 380, text="Try to draw each digit in separate box", fill="white",
+                                    font=self.text_font)
+
+        self.ButtonFrame = Frame(self.main_frame, width=500, height=50, bg="#1a0d00")
+        self.ButtonFrame.place(x=400, y=720)
+        self.ExitButton = Button(self.ButtonFrame, text="Quit Game", font=self.button_font, activebackground="saddle brown",
+                                 bd=3, bg="black", fg="white", justify=CENTER, command=self.first_page, height=1, width=15)
+        self.ExitButton.place(x=250, y=5)
+        self.AnswerButton = Button(self.ButtonFrame, text="Answer", font=self.button_font, activebackground="saddle brown",
+                                     bd=3, bg="black", fg="white", justify=CENTER, height=1, width=15,
+                                   command=lambda:self.answer(self.CountBox))
+        self.AnswerButton.place(x=0, y=5)
+
+    def answer(self,CountBox):
+        for i in range(int(CountBox)):
+            x1=self.root.winfo_rootx()+ 20 + i * 280 + i * 10 + self.DrawCanvas.winfo_x()
+            y1=self.root.winfo_rooty()+ 50 + self.DrawCanvas.winfo_y()
+            x2=self.root.winfo_rootx()+300 + i * 280 + i * 10 + self.DrawCanvas.winfo_x()
+            y2=self.root.winfo_rooty()+ 330 + self.DrawCanvas.winfo_y()
+            im = ImageGrab.grab((x1,y1,x2,y2))
+            imgpath = "images/Captured{}.png".format(i)
+            im.save(imgpath)
+        self.main_frame.destroy()
+        self.CreateMainFrame()
+        self.HeadingFrame = Frame(self.main_frame,height=100,width=500,bg="#1a0d00")
+        self.HeadingFrame.place(x=300,y=50)
+        self.HeadingMess = Message(self.HeadingFrame,width=500,text="Answers",font=self.heading_font,bg="#1a0d00",
+                                   fg="White",justify=CENTER)
+        self.HeadingMess.place(x=0,y=0)
 
 
     def play_friend(self):
@@ -197,9 +219,6 @@ class Riddle_Game(object):
         self.BackButton = Button(self.content_frame, text="Back", activebackground="grey", bd=3, bg="White", fg="Black",
                                  command=self.first_page, font=self.button_font, justify=CENTER, height=1, width=5)
         self.BackButton.place(x=400, y=250)
-
-    def predict(self):
-        pass
 
     def CreateMainFrame(self,page="Any"):
         self.main_frame = Frame(self.root, height=800, width=1200)
