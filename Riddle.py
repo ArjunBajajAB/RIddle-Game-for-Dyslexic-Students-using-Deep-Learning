@@ -26,22 +26,17 @@ class Riddle_Game(object):
 
     def first_page(self):
         self.CreateMainFrame("First")
-        self.content_frame = Frame(self.main_frame, height=100, width=800, bg="#1a0d00")
-        self.content_frame.place(x=200, y=450)
-        self.play_comp_button = Button(self.content_frame, text="Play with computer", activebackground="saddle brown",
+        self.content_frame = Frame(self.main_frame, height=100, width=550, bg="#1a0d00")
+        self.content_frame.place(x=350, y=450)
+        self.play_comp_button = Button(self.content_frame, text="Play", activebackground="saddle brown",
                                        bd=3, bg="black", fg="white",
                                        command=self.play_comp, font=self.button_font, justify=CENTER, height=2,
                                        width=15)
         self.play_comp_button.place(x=20, y=10)
-        self.play_friend_button = Button(self.content_frame, text="Play with a friend", activebackground="saddle brown",
-                                         bd=3, bg="black", fg="white",
-                                         command=self.play_friend, font=self.button_font, justify=CENTER, height=2,
-                                         width=15)
-        self.play_friend_button.place(x=285, y=10)
         self.about_button = Button(self.content_frame, text="About", activebackground="saddle brown", bd=3, bg="black",
                                    fg="white",
                                    command=self.about, font=self.button_font, justify=CENTER, height=2, width=15)
-        self.about_button.place(x=550, y=10)
+        self.about_button.place(x=280, y=10)
 
     def play_comp(self):
         self.main_frame.destroy()
@@ -139,14 +134,9 @@ class Riddle_Game(object):
                                    width=1050,
                                    text=self.RiddleData["Questions"][self.QuesNo].to_string()[3:])
         self.QuesDisplay.place(x=0, y=0)
-        self.DrawCanvas = Canvas(self.main_frame, bg="black", height=400, width=1000)
-        self.DrawCanvas.place(x=30, y=250)
-        self.CountBox = self.RiddleData["DigitsCount"][self.QuesNo]
-        for i in range(int(self.CountBox)):
-            self.DrawCanvas.create_rectangle(20 + i * 280 + i * 10, 50, 300 + i * 280 + i * 10, 330, outline="white")
-        self.DrawCanvas.create_text(700, 380, text="Try to draw each digit in separate box", fill="white",
-                                    font=self.text_font)
-
+        self.CountBox = int(self.RiddleData["DigitsCount"][self.QuesNo])
+        self.DrawCanv()
+        self.setup()
         self.ButtonFrame = Frame(self.main_frame, width=500, height=50, bg="#1a0d00")
         self.ButtonFrame.place(x=400, y=720)
         self.ExitButton = Button(self.ButtonFrame, text="Quit Game", font=self.button_font,
@@ -160,7 +150,47 @@ class Riddle_Game(object):
                                    command=lambda: self.answer(self.CountBox))
         self.AnswerButton.place(x=0, y=5)
 
+    def DrawCanv(self):
+        self.DrawCanvas = Canvas(self.main_frame, bg="black", height=400, width=1000)
+        self.DrawCanvas.place(x=30, y=250)
+        self.CountBox = self.RiddleData["DigitsCount"][self.QuesNo]
+        for i in range(int(self.CountBox)):
+            self.DrawCanvas.create_rectangle(20 + i * 280 + i * 10, 50, 300 + i * 280 + i * 10, 330, outline="white")
+        self.DrawCanvas.create_text(700, 380, text="Try to draw each digit in separate box", fill="white",
+                                    font=self.text_font)
+
+    def setup(self):
+        self.old_x = None  # Initialize x coordinate
+        self.old_y = None  # Initialize y coordinate
+        self.line_width = 40
+        self.color = "White"  # Set color
+        self.DrawCanvas.bind("<Button-1>",self.addpoint)  # when user presses the left button of the mouse, function addpoint is invoked
+        self.DrawCanvas.bind('<B1-Motion>',self.draw)  # invokes draw function when user drags the mouse while the left mouse button is pressed
+        # The above two are events that are mapped to some function
+
+    def addpoint(self, event):  # function to be mapped with the event
+        for i in range(int(self.CountBox)):
+            if (event.x>=20 + i * 280 + i * 10 and event.x<300 + i * 280 + i * 10):
+                self.old_x = event.x
+            if (event.y>=50 and event.y<330):
+                self.old_y = event.y
+
+    def draw(self, event):  # the draw or paint function
+        self.line_width = 40  # select the line width for drawing
+        for i in range(int(self.CountBox)):
+            if (event.x >= 20 + i * 280 + i * 10 and event.x <= 300 + i * 280 + i * 10) and (event.y>=50 and event.y<=330):
+                self.draw_color = self.color
+            else:
+                self.draw_color = "Black"
+            if self.old_x and self.old_y and self.draw_color=="White":  # if the old-x old-y are true and not NONE i.e. the user has pressed on the canvas
+                self.DrawCanvas.create_line((self.old_x, self.old_y, event.x, event.y), width=self.line_width,
+                                   fill=self.draw_color, capstyle=ROUND, smooth=True,
+                                   splinesteps=0)  # draw line from old_x, old_y points to the points where the user left the dragging
+                self.old_x = event.x  # to replace the old coordinates with the coordinates where the user left the mouse dragging
+                self.old_y = event.y  # to replace the old coordinates with the coordinates where the user left the mouse dragging
+
     def answer(self, CountBox):
+        self.PredictAnswer =[]
         for i in range(int(CountBox)):
             x1 = self.root.winfo_rootx() + 20 + i * 280 + i * 10 + self.DrawCanvas.winfo_x()
             y1 = self.root.winfo_rooty() + 50 + self.DrawCanvas.winfo_y()
@@ -169,134 +199,91 @@ class Riddle_Game(object):
             im = ImageGrab.grab((x1, y1, x2, y2))
             imgpath = "images/Captured{}.png".format(i)
             im.save(imgpath)
-        self.PredictAnswer = self.predict(self.CountBox)
+        self.model = tf.keras.models.load_model('Digit_Recognition_Model_2.model')  # Load our trained model
+        for i in range(int(self.CountBox)):
+            self.Predict = self.predict(i)
+            self.PredictAnswer.append(self.Predict)
+
         self.main_frame.destroy()
         self.CreateMainFrame()
-        self.HeadingFrame = Frame(self.main_frame, height=100, width=500, bg="#1a0d00")
+        self.HeadingFrame = Frame(self.main_frame, height=100, width=300, bg="#1a0d00")
         self.HeadingFrame.place(x=300, y=50)
-        self.HeadingMess = Message(self.HeadingFrame, width=500, text="Answers", font=self.heading_font, bg="#1a0d00",
+        self.HeadingMess = Message(self.HeadingFrame, width=300, text="Answers", font=self.heading_font, bg="#1a0d00",
                                    fg="White", justify=CENTER)
         self.HeadingMess.place(x=0, y=0)
-        self.ContentFrame = Frame(self.main_frame, width=900, height=300, bg="#1a0d00")
+        self.ContentFrame = Frame(self.main_frame, width=950, height=300, bg="#1a0d00")
         self.ContentFrame.place(x=50, y=200)
         self.CorrectAns = int(self.RiddleData["Answers"][self.QuesNo].to_string()[3:])
-        self.ans = "The correct answer is :\t" + self.RiddleData["Answers"][self.QuesNo].to_string()[3:] + "\nHINT: " + \
-                   self.RiddleData["Hints"][self.QuesNo].to_string() + ""
+
+        self.predans =""
+        for i in self.PredictAnswer:
+            self.predans+=str(i)
+        self.predans = int(self.predans)
+        if self.CorrectAns == self.predans:
+            self.PlayerScore.append(1)
+        else:
+            self.CompScore.append(1)
+
+        self.ans = "Your answer was :"+str(self.predans)+"\nThe correct answer is :\t" + self.RiddleData["Answers"][self.QuesNo].to_string()[3:] + "\nHINT: " + self.RiddleData["Hints"][self.QuesNo].to_string()[3:] + "\nYour total score is: "+str(len(self.PlayerScore)) + "\nArjun Bot's score is :" + str(len(self.CompScore))
         self.Ans = Message(self.ContentFrame, width=900, bg="#1a0d00", text=self.ans, fg="White", justify=CENTER,
                            font=self.text_font)
+        self.Ans.place(x=10,y=10)
 
-    def predict(self, CountBox):
-        answ = []
-        for i in range(CountBox):
-            image = cv2.imread(
-                'images/Captured{}.png'.format(i))  # read the saved input on canvas which is stores as image
-            grey = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2GRAY)  # convert to grayscale
-            ret, thresh = cv2.threshold(grey.copy(), 75, 255,
-                                        cv2.THRESH_BINARY_INV)  # threshold the image for contouring
-            contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
-                                                   cv2.CHAIN_APPROX_SIMPLE)  # find contours on threshold image
-            preprocessed_digits = []  # empty list to add processed images
-            for c in contours:
-                x, y, w, h = cv2.boundingRect(c)
+        self.ButtonFrame = Frame(self.main_frame,width=550,height=50,bg="#1a0d00")
+        self.ButtonFrame.place(x=300,y=550)
+        if len(self.AskedQues)<5:
+            self.NextButton = Button(self.ButtonFrame, text="Next Round", font=self.button_font,
+                                     activebackground="saddle brown",
+                                     bd=3, bg="black", fg="white", justify=CENTER, command=self.CreateQues, height=1,
+                                     width=15)
+            self.NextButton.place(x=10, y=5)
+        else:
+            self.NextButton = Button(self.ButtonFrame, text="Next", font=self.button_font,
+                                     activebackground="saddle brown",
+                                     bd=3, bg="black", fg="white", justify=CENTER, command=self.Final, height=1,
+                                     width=15)
+            self.NextButton.place(x=10, y=5)
+        self.ExitButton = Button(self.ButtonFrame, text="Quit Game", font=self.button_font,
+                                 activebackground="saddle brown",
+                                 bd=3, bg="black", fg="white", justify=CENTER, command=self.first_page, height=1,
+                                 width=15)
+        self.ExitButton.place(x=300, y=5)
 
-                # Creating a rectangle around the digit in the original image (for displaying the digits fetched via contours)
-                cv2.rectangle(image, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=2)
 
-                # Cropping out the digit from the image corresponding to the current contours in the for loop
-                mean = w + h
-                mean = mean / 2
-                if (w > h):
-                    m = abs(mean - h)
-                    height = int(y + h + m)
-                    width = int(x + w - m)
-                    self.digit = thresh[y:height, x:width]
-                elif (h > w):
-                    m = abs(mean - w)
-                    height = int(y + h - m)
-                    width = int(x + w + m)
-                    self.digit = thresh[y:height, x:width]
-                elif (h == w):
-                    self.digit = thresh[y:y + h, x:x + w]
+    def predict(self, i):
+        image = cv2.imread('images/Captured{}.png'.format(i))  # read the saved input on canvas which is stores as image
+        grey = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2GRAY)  # convert to grayscale
+        ret, thresh = cv2.threshold(grey.copy(), 75, 255,cv2.THRESH_BINARY)  # threshold the image for contouring
 
-                # ResiImport the libraries to create a GUI Applicationzing that digit to (18, 18)
-                resized_digit = cv2.resize(self.digit, (18, 18))
+            # Resizing that digit to (28, 28)
+        resized_digit = cv2.resize(thresh, (28, 28))
+        prediction = self.model.predict(resized_digit.reshape((1, 28, 28, 1)))  # Predict the digit using our model after reshaping the digit to the dimensions the model is trained on
+        ans = np.argmax(prediction)  # convert the predicted array to a readable format
+        return ans
 
-                # Padding the digit with 5 pixels of black color (zeros) in each side to finally produce the image of (28, 28)
-                padded_digit = np.pad(resized_digit, ((5, 5), (5, 5)), "constant", constant_values=0)
-
-                # Adding the preprocessed digit to the list of preprocessed digits
-                preprocessed_digits.append(padded_digit)
-
-            model = tf.keras.models.load_model('Digit_Recognition_Model_2.model')  # Load our trained model
-            for digit in preprocessed_digits:
-                prediction = model.predict(digit.reshape(1, 28, 28, 1))  # Predict the digit using our model after reshaping the digit to the dimensions the model is trained on
-                ans = np.argmax(prediction)  # convert the predicted array to a readable format
-                answ.append(ans)
-
-        return answ
-
-    def play_friend(self):
+    def Final(self):
         self.main_frame.destroy()
         self.CreateMainFrame()
-        self.heading_frame = Frame(self.main_frame, height=100, width=950, bg="#1a0d00")
-        self.heading_frame.place(x=150, y=20)
-        self.heading = Message(self.heading_frame, font=self.heading_font, bg="#1a0d00", fg="White", width=950,
-                               justify=CENTER, text="Let us start with your details")
-        self.heading.place(x=0, y=10)
-        self.content_frame = Frame(self.main_frame, height=250, width=800, bg="#1a0d00")
-        self.content_frame.place(x=300, y=300)
-        self.nameOne_label = Label(self.content_frame, bg="#1a0d00", font=self.text_font, text="Player 1 Name",
-                                   height=1, width=15, justify=LEFT, fg="White")
-        self.nameOne_label.place(x=10, y=10)
-        self.nameOne_entry = Entry(self.content_frame, width=70, bd=3)
-        self.nameOne_entry.place(x=200, y=10)
-        self.ageOne_label = Label(self.content_frame, bg="#1a0d00", font=self.text_font, text="Player 1 Age", height=1,
-                                  width=15, justify=LEFT, fg="White")
-        self.ageOne_label.place(x=10, y=60)
-        self.ageOne_entry = Entry(self.content_frame, width=70, bd=3)
-        self.ageOne_entry.place(x=200, y=60)
+        self.HeadingFrame = Frame(self.main_frame,width=800,bg="#1a0d00",height=100)
+        self.HeadingFrame.place(x=300,y=100)
+        self.HeadingMess = Message(self.HeadingFrame,bg="#1a0d00",fg="White",font=self.heading_font,justify=CENTER,width=700,
+                                   text="Final Result")
+        self.HeadingMess.place(x=10,y=10)
+        self.content_frame = Frame(self.main_frame,bg="#1a0d00",width=1000,height=300)
+        self.content_frame.place(x=100,y=300)
+        self.Winner = str(self.name) if len(self.PlayerScore)>len(self.CompScore) else "Arjun Bot"
+        self.text = "The winner of this game is "+self.Winner+"\nThe final score is Arjun Bot:"+str(len(self.CompScore))+" and "+str(self.name)+":"+str(len(self.PlayerScore))+"\nThank you for playing the game, We hope you have learnt something.\n\n Hope to see you again!"
+        self.Mess = Message(self.content_frame,bg="#1a0d00",fg="White",font=self.text_font,justify=CENTER,width=850,
+                            text=self.text)
+        self.Mess.place(x=0,y=0)
+        self.ButtonFrame = Frame(self.main_frame, width=550, height=50, bg="#1a0d00")
+        self.ButtonFrame.place(x=300, y=550)
+        self.PlayAgain = Button(self.ButtonFrame, text="Play Again", font=self.button_font,
+                                     activebackground="saddle brown",
+                                     bd=3, bg="black", fg="white", justify=CENTER, command=self.first_page, height=1,
+                                     width=15)
+        self.PlayAgain.place(x=10,y=5)
 
-        self.nameTwo_label = Label(self.content_frame, bg="#1a0d00", font=self.text_font, text="Player 2 Name",
-                                   height=1, width=15, justify=LEFT, fg="White")
-        self.nameTwo_label.place(x=10, y=110)
-        self.nameTwo_entry = Entry(self.content_frame, width=70, bd=3)
-        self.nameTwo_entry.place(x=200, y=110)
-        self.ageTwo_label = Label(self.content_frame, bg="#1a0d00", font=self.text_font, text="Player 2 Age", height=1,
-                                  width=15, justify=LEFT, fg="White")
-        self.ageTwo_label.place(x=10, y=160)
-        self.ageTwo_entry = Entry(self.content_frame, width=70, bd=3)
-        self.ageTwo_entry.place(x=200, y=160)
-
-        self.ButtonFrame = Frame(self.main_frame, height=50, width=600, bg="#1a0d00")
-        self.ButtonFrame.place(x=450, y=630)
-        self.continue_button = Button(self.ButtonFrame, text="Continue", activebackground="saddle brown", bd=3,
-                                      bg="black", fg="white",
-                                      command=self.PlayPageFriend, font=self.button_font, justify=CENTER, height=1,
-                                      width=15)
-        self.continue_button.place(x=0, y=0)
-        self.back_button = Button(self.ButtonFrame, text="Back", activebackground="saddle brown", bd=3, bg="black",
-                                  fg="white",
-                                  command=self.first_page, font=self.button_font, justify=CENTER, height=1, width=15)
-        self.back_button.place(x=285, y=0)
-
-    def PlayPageFriend(self):
-        self.ageOne = self.ageOne_entry.get()
-        self.nameOne = self.nameOne_entry.get()
-        self.nameOne = self.nameOne.replace(" ", "")
-        self.ageTwo = self.ageTwo_entry.get()
-        self.nameTwo = self.nameTwo_entry.get()
-        self.nameTwo = self.nameTwo.replace(" ", "")
-        if self.ageOne.isdigit() and self.nameOne.isalpha() and self.nameTwo.isalpha() and self.ageTwo.isdigit():
-            self.main_frame.destroy()
-        else:
-            self.nameOne_entry.delete(0, len(self.nameOne) + 2)
-            self.ageOne_entry.delete(0, len(self.ageOne))
-            self.nameTwo_entry.delete(0, len(self.nameTwo) + 2)
-            self.ageTwo_entry.delete(0, len(self.ageTwo))
-            self.alert = "Please enter valid details"
-            self.alert_info = Label(self.content_frame, bg="#1a0d00", font=self.text_font, text=self.alert, height=1,
-                                    width=50, fg="White")
-            self.alert_info.place(x=80, y=200)
 
     def about(self):
         self.content_frame.destroy()  # Just destroy the content frame as the heading is needed
