@@ -6,7 +6,7 @@ import numpy as np
 import pyscreenshot as ImageGrab
 import cv2
 import tensorflow as tf
-
+from playsound import playsound
 
 class Riddle_Game(object):
 
@@ -21,6 +21,7 @@ class Riddle_Game(object):
         self.QuesFont = tkFont.Font(family="Courier New", size=20, weight="bold")
         self.button_font = tkFont.Font(family="Playbill", size=15, weight="bold")
         self.BackgroundImage(self.root)
+        self.MUTE = False
         self.first_page()
         self.root.mainloop()
 
@@ -95,7 +96,7 @@ class Riddle_Game(object):
             self.heading.place(x=0, y=10)
             self.content_frame = Frame(self.main_frame, height=300, width=800, bg="#1a0d00")
             self.content_frame.place(x=200, y=300)
-            self.rule = "1. The game comprises of 5 rounds with each round having one point.\n2. In each round Arjun Bot will ask you a question and give you 2 minutes time to think and then you have to draw the answer in the given white region of the canvas and press 'Answer' button.\n3. If you answer correctly you will gain one point else Arjun will gain one point. \n4. After 5 rounds let's see who wins. \n Let's Go \n\n HINT: All answers comprise of only digits"
+            self.rule = "1. The game comprises of 5 rounds with each round having one point.\n2. In each round I will ask you a question and give you time to think and then you have to draw the answer in the given white region of the canvas,then press 'Answer' button.\n3. If you answer correctly you will gain one point else Arjun will gain one point. \n4. After 5 rounds let's see who wins. \n Let's Go \n\n HINT: All answers comprise of only digits"
             self.rules = Message(self.content_frame, font=self.text_font, bg="#1a0d00", fg="white", width=750,
                                  justify=LEFT, text=self.rule)
             self.rules.place(x=0, y=0)
@@ -130,7 +131,7 @@ class Riddle_Game(object):
     def CreateQues(self):
         self.main_frame.destroy()
         self.CreateMainFrame()
-        self.QuesFrame = Frame(self.main_frame, width=1100, height=200, bg="#1a0d00")
+        self.QuesFrame = Frame(self.main_frame, width=1050, height=200, bg="#1a0d00")
         self.QuesFrame.place(x=20, y=10)
         self.loop = 1
         while (self.loop == 1):
@@ -140,25 +141,32 @@ class Riddle_Game(object):
                 self.loop = 0
             else:
                 self.loop = 1
+
         self.QuesDisplay = Message(self.QuesFrame, bg="#1a0d00", fg="White", font=self.QuesFont, justify=CENTER,
-                                   width=1050,
+                                   width=1000,
                                    text=self.RiddleData["Questions"][self.QuesNo].to_string()[3:])
         self.QuesDisplay.place(x=0, y=0)
         self.CountBox = int(self.RiddleData["DigitsCount"][self.QuesNo])
         self.DrawCanv()
         self.setup()
-        self.ButtonFrame = Frame(self.main_frame, width=500, height=50, bg="#1a0d00")
-        self.ButtonFrame.place(x=400, y=720)
-        self.ExitButton = Button(self.ButtonFrame, text="Quit Game", font=self.button_font,
-                                 activebackground="saddle brown",
-                                 bd=3, bg="black", fg="white", justify=CENTER, command=self.first_page, height=1,
-                                 width=15)
-        self.ExitButton.place(x=250, y=5)
+        self.ButtonFrame = Frame(self.main_frame, width=770, height=50, bg="#1a0d00")
+        self.ButtonFrame.place(x=300, y=700)
+        self.ListenButton = Button(self.ButtonFrame, text="Listen Ques", font=self.button_font,
+                                   activebackground="saddle brown",
+                                   bd=3, bg="black", fg="white", justify=CENTER, height=1, width=15,
+                                   command=lambda: self.PlayAudio("sounds/Ques{}.mp3".format(str(int(self.QuesNo)))))
+        self.ListenButton.place(x=0, y=5)
         self.AnswerButton = Button(self.ButtonFrame, text="Answer", font=self.button_font,
                                    activebackground="saddle brown",
                                    bd=3, bg="black", fg="white", justify=CENTER, height=1, width=15,
                                    command=lambda: self.answer(self.CountBox))
-        self.AnswerButton.place(x=0, y=5)
+        self.AnswerButton.place(x=250, y=5)
+        self.ExitButton = Button(self.ButtonFrame, text="Quit Game", font=self.button_font,
+                                 activebackground="saddle brown",
+                                 bd=3, bg="black", fg="white", justify=CENTER, command=self.first_page, height=1,
+                                 width=15)
+        self.ExitButton.place(x=500, y=5)
+
 
     def DrawCanv(self):
         self.DrawCanvas = Canvas(self.main_frame, bg="black", height=400, width=1000)
@@ -168,6 +176,9 @@ class Riddle_Game(object):
             self.DrawCanvas.create_rectangle(20 + i * 280 + i * 10, 50, 300 + i * 280 + i * 10, 330, outline="white")
         self.DrawCanvas.create_text(700, 380, text="Try to draw each digit in separate box", fill="white",
                                     font=self.text_font)
+
+    def PlayAudio(self,txt):
+        playsound(txt)
 
     def setup(self):
         self.old_x = None  # Initialize x coordinate
@@ -221,7 +232,7 @@ class Riddle_Game(object):
         self.HeadingMess = Message(self.HeadingFrame, width=300, text="Answers", font=self.heading_font, bg="#1a0d00",
                                    fg="White", justify=CENTER)
         self.HeadingMess.place(x=0, y=0)
-        self.ContentFrame = Frame(self.main_frame, width=750, height=300, bg="#1a0d00")
+        self.ContentFrame = Frame(self.main_frame, width=770, height=300, bg="#1a0d00")
         self.ContentFrame.place(x=200, y=200)
         self.CorrectAns = int(self.RiddleData["Answers"][self.QuesNo].to_string()[3:])
 
@@ -239,8 +250,8 @@ class Riddle_Game(object):
                            font=self.text_font)
         self.Ans.place(x=10,y=10)
 
-        self.ButtonFrame = Frame(self.main_frame,width=550,height=50,bg="#1a0d00")
-        self.ButtonFrame.place(x=300,y=550)
+        self.ButtonFrame = Frame(self.main_frame,width=770,height=50,bg="#1a0d00")
+        self.ButtonFrame.place(x=200,y=550)
         if len(self.AskedQues)<int(self.Rounds):
             self.NextButton = Button(self.ButtonFrame, text="Next Round", font=self.button_font,
                                      activebackground="saddle brown",
@@ -253,11 +264,16 @@ class Riddle_Game(object):
                                      bd=3, bg="black", fg="white", justify=CENTER, command=self.Final, height=1,
                                      width=15)
             self.NextButton.place(x=10, y=5)
+
+        self.ListenButton = Button(self.ButtonFrame,text="Listen Answer",font=self.button_font,activebackground="saddle brown",
+                                   bd=3, bg="black", fg="white", justify=CENTER, height=1, width=15,
+                                   command=lambda:self.PlayAudio("sounds/Ans{}.mp3".format(str(int(self.QuesNo)))))
+        self.ListenButton.place(x=260,y=5)
         self.ExitButton = Button(self.ButtonFrame, text="Quit Game", font=self.button_font,
                                  activebackground="saddle brown",
                                  bd=3, bg="black", fg="white", justify=CENTER, command=self.first_page, height=1,
                                  width=15)
-        self.ExitButton.place(x=300, y=5)
+        self.ExitButton.place(x=510, y=5)
 
 
     def predict(self, i):
