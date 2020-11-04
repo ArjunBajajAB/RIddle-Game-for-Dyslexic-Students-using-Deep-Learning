@@ -5,7 +5,7 @@
 
 The program opens a game window with all the instructions mentioned. The user plays against the computer called Arjun Bot and can manually select the number of rounds of the game. In each round Arjun Bot asks the player a small riddle and the player can also listen to the question if he/she finds it difficult to read. The player has to draw the answer in the given box, with each digit in separate box. The correct answer is shown to the user after submission and he/she can read/listen the answer. The final score and winner is displayed then.
 
-##Open Source Model
+## Open Source Model
 Python libraries used
 1. Opencv
 2. Keras
@@ -40,4 +40,4 @@ The first edition is doing good when the user draws the digit neatly and within 
 
 ## Need Update
 
-The project is only the first edition. I will keep update.
+The project is the second edition. I will keep update.
