@@ -1,3 +1,4 @@
+#Import Libraries required
 from PIL import ImageTk, Image, ImageOps
 from tkinter import *
 from tkinter import font as tkFont
@@ -8,20 +9,20 @@ import cv2
 import tensorflow as tf
 from playsound import playsound
 
+
 class Riddle_Game(object):
 
     def __init__(self):
         self.root = Tk()  # Create a root widget
         self.root.geometry("1200x800")  # Define the size of the window or app
         self.root.title("Riddle Game")  # Set the title of the window
-        self.root.resizable(0, 0)
+        self.root.resizable(0, 0) #Disable resizing of window
         self.text_font = tkFont.Font(family="Courier New", size=15, weight="bold")
         self.heading_font = tkFont.Font(family="Verdana", size=40, weight="bold")
         self.heading_font_small = tkFont.Font(family="Courier New", size=25, weight="bold")
         self.QuesFont = tkFont.Font(family="Courier New", size=20, weight="bold")
         self.button_font = tkFont.Font(family="Playbill", size=15, weight="bold")
-        self.BackgroundImage(self.root)
-        self.MUTE = False
+        self.BackgroundImage(self.root)        #set the background image for default/first page
         self.first_page()
         self.root.mainloop()
 
@@ -30,12 +31,12 @@ class Riddle_Game(object):
         self.content_frame = Frame(self.main_frame, height=100, width=550, bg="#1a0d00")
         self.content_frame.place(x=350, y=450)
         self.play_comp_button = Button(self.content_frame, text="Play", activebackground="saddle brown",
-                                       bd=3, bg="black", fg="white",
+                                       bd=3, bg="black", fg="white",                                           #The play button
                                        command=self.play_comp, font=self.button_font, justify=CENTER, height=2,
                                        width=15)
         self.play_comp_button.place(x=20, y=10)
         self.about_button = Button(self.content_frame, text="About", activebackground="saddle brown", bd=3, bg="black",
-                                   fg="white",
+                                   fg="white",                                                                       #The about button
                                    command=self.about, font=self.button_font, justify=CENTER, height=2, width=15)
         self.about_button.place(x=280, y=10)
 
@@ -81,11 +82,11 @@ class Riddle_Game(object):
         self.back_button.place(x=285, y=0)
 
     def PlayPageComp(self):
-        self.age = self.age_entry.get()
-        self.name = self.name_entry.get()
-        self.nameFormat = self.name.replace(" ", "")
-        self.Rounds = self.default.get()
-        if self.age.isdigit() and self.nameFormat.isalpha():
+        self.age = self.age_entry.get()      #Get the age user enter
+        self.name = self.name_entry.get()    #Get the name the user enters
+        self.nameFormat = self.name.replace(" ", "")    #Remove spaces between the first and last name
+        self.Rounds = self.default.get()   #Get the number of rounds the user enters
+        if self.age.isdigit() and self.nameFormat.isalpha():   #Validate if the name is alphabets and age is digits
             self.main_frame.destroy()
             self.CreateMainFrame()
             self.heading_frame = Frame(self.main_frame, height=100, width=1100, bg="#1a0d00")
@@ -115,16 +116,16 @@ class Riddle_Game(object):
         else:
             self.name_entry.delete(0, len(self.name) + 2)
             self.age_entry.delete(0, len(self.age))
-            self.alert = "Please enter valid details"
+            self.alert = "Please enter valid details"   #If the name and age are not valid
             self.alert_info = Label(self.content_frame, bg="#1a0d00", font=self.text_font, text=self.alert, height=1,
                                     width=50, fg="White")
             self.alert_info.place(x=80, y=150)
 
     def PlaySolo(self):
-        self.CompScore = []
-        self.PlayerScore = []
-        self.AskedQues = []
-        self.RiddleData = pd.read_csv("Riddle_Data.csv")
+        self.CompScore = []    #Initialise empty list for evaluation computer's score
+        self.PlayerScore = []  #Initialise empty list for evaluation of player's score
+        self.AskedQues = []    #Add asked question in this list so that repition does not occur
+        self.RiddleData = pd.read_csv("Riddle_Data.csv")  #Read from the riddles data
         pd.set_option('display.max_colwidth', None)
         self.CreateQues()
 
@@ -177,7 +178,7 @@ class Riddle_Game(object):
         self.DrawCanvas.create_text(700, 380, text="Try to draw each digit in separate box", fill="white",
                                     font=self.text_font)
 
-    def PlayAudio(self,txt):
+    def PlayAudio(self,txt):  #Function to play audio in the background
         playsound(txt)
 
     def setup(self):
@@ -191,9 +192,9 @@ class Riddle_Game(object):
 
     def addpoint(self, event):  # function to be mapped with the event
         for i in range(int(self.CountBox)):
-            if (event.x>=20 + i * 280 + i * 10 and event.x<300 + i * 280 + i * 10):
+            if (event.x>=20 + i * 280 + i * 10 and event.x<300 + i * 280 + i * 10): #user cannot draw oustide boxes
                 self.old_x = event.x
-            if (event.y>=50 and event.y<330):
+            if (event.y>=50 and event.y<330): #user cannot draw outside boxes
                 self.old_y = event.y
 
     def draw(self, event):  # the draw or paint function
@@ -212,7 +213,7 @@ class Riddle_Game(object):
 
     def answer(self, CountBox):
         self.PredictAnswer =[]
-        for i in range(int(CountBox)):
+        for i in range(int(CountBox)):  #to capture the digits drawn by users
             x1 = self.root.winfo_rootx() + 20 + i * 280 + i * 10 + self.DrawCanvas.winfo_x()
             y1 = self.root.winfo_rooty() + 50 + self.DrawCanvas.winfo_y()
             x2 = self.root.winfo_rootx() + 300 + i * 280 + i * 10 + self.DrawCanvas.winfo_x()
@@ -240,7 +241,7 @@ class Riddle_Game(object):
         for i in self.PredictAnswer:
             self.predans+=str(i)
         self.predans = int(self.predans)
-        if self.CorrectAns == self.predans:
+        if self.CorrectAns == self.predans:  #Evaluate score
             self.PlayerScore.append(1)
         else:
             self.CompScore.append(1)
@@ -252,13 +253,13 @@ class Riddle_Game(object):
 
         self.ButtonFrame = Frame(self.main_frame,width=770,height=50,bg="#1a0d00")
         self.ButtonFrame.place(x=200,y=550)
-        if len(self.AskedQues)<int(self.Rounds):
+        if len(self.AskedQues)<int(self.Rounds):  #if all rounds are not completed
             self.NextButton = Button(self.ButtonFrame, text="Next Round", font=self.button_font,
                                      activebackground="saddle brown",
                                      bd=3, bg="black", fg="white", justify=CENTER, command=self.CreateQues, height=1,
                                      width=15)
             self.NextButton.place(x=10, y=5)
-        else:
+        else:  #if all rounds are completed
             self.NextButton = Button(self.ButtonFrame, text="Next", font=self.button_font,
                                      activebackground="saddle brown",
                                      bd=3, bg="black", fg="white", justify=CENTER, command=self.Final, height=1,
@@ -336,11 +337,11 @@ class Riddle_Game(object):
         self.PlayAgain.place(x=10,y=5)
 
 
-    def about(self):
+    def about(self):  #Function that tells about the developer
         self.content_frame.destroy()  # Just destroy the content frame as the heading is needed
         self.content_frame = Frame(self.main_frame, height=300, width=700, bg="#1a0d00")
         self.content_frame.place(x=270, y=450)  # Place below heading
-        self.about = "Riddle Game \n\n This is a game mainly developed for children suffering from dyslexia or children who are unable to read and write properly. The children can play with the computer and should play under someone's supervision and should practice drawing answers in the entire box. \n This application is developed by Arjun Bajaj, a BCA student"
+        self.about = "Riddle Game \n\n This is a game mainly developed for children suffering from dyslexia or children who are unable to read and write properly. The children can play with the computer and should play under someone's supervision and should practice drawing answers in the entire box. \n This application is developed by Arjun Bajaj, arjunbajaj2000@gmail.com"
         self.AboutInfo = Message(self.content_frame, bg="#1a0d00", fg="White", font=self.text_font, justify=CENTER,
                                  width=600, text=self.about)
         self.AboutInfo.place(x=0, y=0)
@@ -348,12 +349,12 @@ class Riddle_Game(object):
                                  command=self.first_page, font=self.button_font, justify=CENTER, height=1, width=5)
         self.BackButton.place(x=400, y=250)
 
-    def CreateMainFrame(self, page="Any"):
+    def CreateMainFrame(self, page="Any"):     #Function to create the main frame on each page
         self.main_frame = Frame(self.root, height=800, width=1200)
         self.main_frame.place(x=0, y=0)
         self.BackgroundImage(self.main_frame, page)
 
-    def BackgroundImage(self, root, page="Any"):
+    def BackgroundImage(self, root, page="Any"):  #Function to set the background image on each page
         if page == "First":
             self.background_image = ImageTk.PhotoImage(file="images/riddle_front.jpg")
         else:
@@ -364,3 +365,8 @@ class Riddle_Game(object):
 
 if __name__ == '__main__':
     Riddle_Game()
+# Before executing code, Python interpreter reads source file and define few special variables/global variables.
+# If the python interpreter is running that module (the source file) as the main program, it sets the special
+# __name__ variable to have a value “__main__”. If this file is being imported from another module,
+# __name__ will be set to the module’s name. Module’s name is available as value to __name__ global variable.
+# Here our class Riddle_Game script is being used as a module so its __name__ is __main__
