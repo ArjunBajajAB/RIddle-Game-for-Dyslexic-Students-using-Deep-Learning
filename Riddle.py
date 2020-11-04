@@ -1,6 +1,6 @@
 #Import Libraries required
-from PIL import ImageTk, Image, ImageOps
-from tkinter import *
+from PIL import ImageTk, Image
+from tkinter import *   
 from tkinter import font as tkFont
 import pandas as pd
 import numpy as np
