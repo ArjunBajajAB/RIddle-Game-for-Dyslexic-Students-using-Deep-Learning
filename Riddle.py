@@ -1,6 +1,6 @@
 #Import Libraries required
 from PIL import ImageTk, Image
-from tkinter import *   
+from tkinter import *
 from tkinter import font as tkFont
 import pandas as pd
 import numpy as np
@@ -8,6 +8,8 @@ import pyscreenshot as ImageGrab
 import cv2
 import tensorflow as tf
 from playsound import playsound
+physical_devices = tf.config.experimental.list_physical_devices("GPU")
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 
 class Riddle_Game(object):
@@ -97,7 +99,7 @@ class Riddle_Game(object):
             self.heading.place(x=0, y=10)
             self.content_frame = Frame(self.main_frame, height=300, width=800, bg="#1a0d00")
             self.content_frame.place(x=200, y=300)
-            self.rule = "1. The game comprises of 5 rounds with each round having one point.\n2. In each round I will ask you a question and give you time to think and then you have to draw the answer in the given white region of the canvas,then press 'Answer' button.\n3. If you answer correctly you will gain one point else Arjun will gain one point. \n4. After 5 rounds let's see who wins. \n Let's Go \n\n HINT: All answers comprise of only digits"
+            self.rule = "1. The game comprises of " + str(self.Rounds) + " rounds with each round having one point.\n2. In each round I will ask you a question and give you time to think and then you have to draw the answer in the given white region of the canvas,then press 'Answer' button.\n3. If you answer correctly you will gain one point else I will gain one point. \n4. After " + str(self.Rounds) + " rounds let's see who wins. \n Let's Go \n\n HINT: All answers comprise of only digits"
             self.rules = Message(self.content_frame, font=self.text_font, bg="#1a0d00", fg="white", width=750,
                                  justify=LEFT, text=self.rule)
             self.rules.place(x=0, y=0)
@@ -132,7 +134,7 @@ class Riddle_Game(object):
     def CreateQues(self):
         self.main_frame.destroy()
         self.CreateMainFrame()
-        self.QuesFrame = Frame(self.main_frame, width=1050, height=200, bg="#1a0d00")
+        self.QuesFrame = Frame(self.main_frame, width=1050, height=250, bg="#1a0d00")
         self.QuesFrame.place(x=20, y=10)
         self.loop = 1
         while (self.loop == 1):
@@ -151,7 +153,7 @@ class Riddle_Game(object):
         self.DrawCanv()
         self.setup()
         self.ButtonFrame = Frame(self.main_frame, width=770, height=50, bg="#1a0d00")
-        self.ButtonFrame.place(x=300, y=700)
+        self.ButtonFrame.place(x=300, y=720)
         self.ListenButton = Button(self.ButtonFrame, text="Listen Ques", font=self.button_font,
                                    activebackground="saddle brown",
                                    bd=3, bg="black", fg="white", justify=CENTER, height=1, width=15,
@@ -171,7 +173,7 @@ class Riddle_Game(object):
 
     def DrawCanv(self):
         self.DrawCanvas = Canvas(self.main_frame, bg="black", height=400, width=1000)
-        self.DrawCanvas.place(x=30, y=250)
+        self.DrawCanvas.place(x=30, y=300)
         self.CountBox = self.RiddleData["DigitsCount"][self.QuesNo]
         for i in range(int(self.CountBox)):
             self.DrawCanvas.create_rectangle(20 + i * 280 + i * 10, 50, 300 + i * 280 + i * 10, 330, outline="white")
@@ -328,13 +330,19 @@ class Riddle_Game(object):
         self.Mess = Message(self.content_frame,bg="#1a0d00",fg="White",font=self.heading_font_small,justify=CENTER,width=950,
                             text=self.text)
         self.Mess.place(x=0,y=0)
-        self.ButtonFrame = Frame(self.main_frame, width=300, height=50, bg="#1a0d00")
-        self.ButtonFrame.place(x=500, y=650)
+        self.ButtonFrame = Frame(self.main_frame, width=570, height=50, bg="#1a0d00")
+        self.ButtonFrame.place(x=400, y=650)
         self.PlayAgain = Button(self.ButtonFrame, text="Play Again", font=self.button_font,
                                      activebackground="saddle brown",
                                      bd=3, bg="black", fg="white", justify=CENTER, command=self.PlaySolo, height=1,
                                      width=15)
         self.PlayAgain.place(x=10,y=5)
+        self.ExitButton = Button(self.ButtonFrame, text="Quit Game", font=self.button_font,
+                                 activebackground="saddle brown",
+                                 bd=3, bg="black", fg="white", justify=CENTER, command=exit, height=1,
+                                 width=15)
+        self.ExitButton.place(x=280, y=5)
+
 
 
     def about(self):  #Function that tells about the developer
