@@ -51,8 +51,6 @@ The game is written in a python file called "Riddle.py"
 
 The first edition is doing good when the user draws the digit neatly and within the given box. The accuracy of prediction is 98.8% .
 
-## Full Working of the game
-
 ## Need Update
 
 The project is the second edition. I will keep update.
