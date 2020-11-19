@@ -50,11 +50,11 @@ The game is written in a python file called "Riddle.py"
 ## Important Note
 
 Versions of the software used are 
-Python -  3.8.5
-Tensorflow - tensorflow-gpu 2.2.0
-CUDA - 10.2
-CuDNN - v8.0.5 (November 9th, 2020), for CUDA 10.2 
-GPU - Nvidia Geforce GTX 1650
+1. Python -  3.8.5
+2. Tensorflow - tensorflow-gpu 2.2.0
+3. CUDA - 10.2
+4. CuDNN - v8.0.5 (November 9th, 2020), for CUDA 10.2 
+5. GPU - Nvidia Geforce GTX 1650
 The model for handwritten digit recognition is trained using above mentioned software versions and saved as .h5 file. If you have any different versions open the “Digit Recognition Model.ipynb” file and run all the cells, this will retrain the model according to your versions. Else you can install the above mentioned versions to run the same.
 
 ## Report
