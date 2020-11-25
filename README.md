@@ -8,6 +8,9 @@ The program opens a game window with all the instructions mentioned. The user pl
 ## Important Notice
 This project is tested on Ubuntu 20.04 LTS and Ubuntu 18.04 LTS and is working according to the images and videos shown.
 
+## How to run the game
+python3 Riddle.py or python Riddle.py
+
 ## Open Source Model
 Python libraries used
 1. Opencv
